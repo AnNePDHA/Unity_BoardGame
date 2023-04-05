@@ -40,8 +40,8 @@ public class MiniMax
         }
 
         //All possible moves.
-        List<Move> moves = GameManager.instance.GenerateAllMoves(maximisingPlayer ?
-            GameManager.instance.black : GameManager.instance.white);
+        List<Move> moves = GameManager.Instance.GenerateAllMoves(maximisingPlayer ?
+            GameManager.Instance.black : GameManager.Instance.white);
 
         //Sort moves that were generated (Move Ordering) - store in same list.
         moves = SortMoves(moves, maximisingPlayer);
@@ -51,13 +51,13 @@ public class MiniMax
 
         if (maximisingPlayer)
         {
-            GameManager.instance.currentPlayer = GameManager.instance.black;
-            GameManager.instance.otherPlayer = GameManager.instance.white;
+            GameManager.Instance.currentPlayer = GameManager.Instance.black;
+            GameManager.Instance.otherPlayer = GameManager.Instance.white;
         }
         else
         {
-            GameManager.instance.currentPlayer = GameManager.instance.white;
-            GameManager.instance.otherPlayer = GameManager.instance.black;
+            GameManager.Instance.currentPlayer = GameManager.Instance.white;
+            GameManager.Instance.otherPlayer = GameManager.Instance.black;
         }
 
         //Iterate through each possible move...
@@ -69,19 +69,19 @@ public class MiniMax
 
             #region Make Move
             //Used to remove object from GameManager movedPawns list
-            if (move.piece.name.Contains("Pawn") && !GameManager.instance.movedPawns.Contains(move.piece))
+            if (move.piece.name.Contains("Pawn") && !GameManager.Instance.movedPawns.Contains(move.piece))
             {
                 pawnMoved = true;
             }
 
-            if (GameManager.instance.PieceAtGrid(move.dest) == null)
+            if (GameManager.Instance.PieceAtGrid(move.dest) == null)
             {
-                GameManager.instance.Move(move.piece, move.dest, false);
+                GameManager.Instance.Move(move.piece, move.dest, false);
             }
-            else //if(!GameManager.instance.PieceAtGrid(move.dest).name.Contains(search))
+            else //if(!GameManager.Instance.PieceAtGrid(move.dest).name.Contains(search))
             {
-                GameManager.instance.CapturePieceAt(move.dest, false, maximisingPlayer ? GameManager.instance.black : GameManager.instance.white);
-                GameManager.instance.Move(move.piece, move.dest, false);
+                GameManager.Instance.CapturePieceAt(move.dest, false, maximisingPlayer ? GameManager.Instance.black : GameManager.Instance.white);
+                GameManager.Instance.Move(move.piece, move.dest, false);
                 pieceCaptured = true;
             }
             #endregion
@@ -110,16 +110,16 @@ public class MiniMax
             }
 
             #region Undo Move
-            GameManager.instance.Move(move.piece, move.source, false);
+            GameManager.Instance.Move(move.piece, move.source, false);
 
             if (pieceCaptured)
             {
-                GameManager.instance.UndoDelete(captured, move.dest, maximisingPlayer ? GameManager.instance.black : GameManager.instance.white);
+                GameManager.Instance.UndoDelete(captured, move.dest, maximisingPlayer ? GameManager.Instance.black : GameManager.Instance.white);
             }
 
             if (pawnMoved)
             {
-                GameManager.instance.movedPawns.Remove(move.piece);
+                GameManager.Instance.movedPawns.Remove(move.piece);
             }
             #endregion
 
@@ -150,11 +150,11 @@ public class MiniMax
 
         float pieceScore = 0;
 
-        for(int i = 0; i < GameManager.instance.pieces.GetLength(0); i++)
+        for(int i = 0; i < GameManager.Instance.pieces.GetLength(0); i++)
         {
-            for(int j = 0; j < GameManager.instance.pieces.GetLength(1); j++)
+            for(int j = 0; j < GameManager.Instance.pieces.GetLength(1); j++)
             {
-                GameObject piece = GameManager.instance.pieces[j, i];
+                GameObject piece = GameManager.Instance.pieces[j, i];
 
                 if(piece != null)
                 {
@@ -259,20 +259,20 @@ public class MiniMax
             bool pawnMoved = false;
 
             //Used to remove object from GameManager movedPawns list
-            if (move.piece.name.Contains("Pawn") && !GameManager.instance.movedPawns.Contains(move.piece))
+            if (move.piece.name.Contains("Pawn") && !GameManager.Instance.movedPawns.Contains(move.piece))
             {
                 pawnMoved = true;
             }
 
-            if (GameManager.instance.PieceAtGrid(move.dest) == null)
+            if (GameManager.Instance.PieceAtGrid(move.dest) == null)
             {
-                GameManager.instance.Move(move.piece, move.dest, false);
+                GameManager.Instance.Move(move.piece, move.dest, false);
                 pieceCaptured = false;
             }
             else
             {
-                GameManager.instance.CapturePieceAt(move.dest, false,GameManager.instance.black);
-                GameManager.instance.Move(move.piece, move.dest, false);
+                GameManager.Instance.CapturePieceAt(move.dest, false,GameManager.Instance.black);
+                GameManager.Instance.Move(move.piece, move.dest, false);
                 pieceCaptured = true;
             }
             #endregion
@@ -281,16 +281,16 @@ public class MiniMax
             scores[movesToSort.IndexOf(move)] = (int)Evaluate();
 
             #region Undo Move
-            GameManager.instance.Move(move.piece, move.source, false);
+            GameManager.Instance.Move(move.piece, move.source, false);
 
             if (pieceCaptured)
             {
-                GameManager.instance.UndoDelete(captured, move.dest, GameManager.instance.black);
+                GameManager.Instance.UndoDelete(captured, move.dest, GameManager.Instance.black);
             }
 
             if (pawnMoved)
             {
-                GameManager.instance.movedPawns.Remove(move.piece);
+                GameManager.Instance.movedPawns.Remove(move.piece);
             }
             #endregion
         }

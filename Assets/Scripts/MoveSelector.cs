@@ -75,17 +75,17 @@ public class MoveSelector : MonoBehaviour
                     return;
                 }
 
-                if (GameManager.instance.PieceAtGrid(gridPoint) == null)
+                if (GameManager.Instance.PieceAtGrid(gridPoint) == null)
                 {
-                    GameManager.instance.Move(movingPiece, gridPoint);
+                    GameManager.Instance.Move(movingPiece, gridPoint);
 
                     //Modified by Luke Guest
                     TileSelector.inst.selectedObject = null;
                 }
                 else
                 {
-                    GameManager.instance.CapturePieceAt(gridPoint);
-                    GameManager.instance.Move(movingPiece, gridPoint);
+                    GameManager.Instance.CapturePieceAt(gridPoint);
+                    GameManager.Instance.Move(movingPiece, gridPoint);
 
                     //Modified by Luke Guest
                     TileSelector.inst.selectedObject = null;
@@ -111,7 +111,7 @@ public class MoveSelector : MonoBehaviour
             Destroy(highlight);
         }
 
-        GameManager.instance.DeselectPiece(movingPiece);
+        GameManager.Instance.DeselectPiece(movingPiece);
         TileSelector selector = GetComponent<TileSelector>();
         selector.EnterState();
 
@@ -124,7 +124,7 @@ public class MoveSelector : MonoBehaviour
         movingPiece = piece;
         this.enabled = true;
 
-        moveLocations = GameManager.instance.MovesForPiece(movingPiece);
+        moveLocations = GameManager.Instance.MovesForPiece(movingPiece);
         locationHighlights = new List<GameObject>();
 
         if (moveLocations.Count == 0)
@@ -135,7 +135,7 @@ public class MoveSelector : MonoBehaviour
         foreach (Vector2Int loc in moveLocations)
         {
             GameObject highlight;
-            if (GameManager.instance.PieceAtGrid(loc))
+            if (GameManager.Instance.PieceAtGrid(loc))
             {
                 highlight = Instantiate(attackLocationPrefab, Geometry.PointFromGrid(loc), Quaternion.identity, gameObject.transform);
             }
@@ -152,10 +152,10 @@ public class MoveSelector : MonoBehaviour
         this.enabled = false;
         TileSelector selector = GetComponent<TileSelector>();
         tileHighlight.SetActive(false);
-        GameManager.instance.DeselectPiece(movingPiece);
+        GameManager.Instance.DeselectPiece(movingPiece);
         movingPiece = null;
 
-        GameManager.instance.NextPlayer();
+        GameManager.Instance.NextPlayer();
         selector.EnterState();
         foreach (GameObject highlight in locationHighlights)
         {

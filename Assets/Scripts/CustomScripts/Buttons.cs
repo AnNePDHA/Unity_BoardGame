@@ -1,31 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Buttons : MonoBehaviour
 {
-    GameManager inst;
-
-    private void Start()
-    {
-        inst = GameManager.instance;
-    }
-
     public void Easy()
     {
-        inst.ChangeDifficulty(GameManager.Difficulty.Easy);
-        inst.uiPromptText.text = "Current Difficulty: Easy";
+        NetworkManager.diff = GameManager.Difficulty.Easy;
+        SceneManager.LoadScene("Main");
     }
 
     public void Medium()
     {
-        inst.ChangeDifficulty(GameManager.Difficulty.Medium);
-        inst.uiPromptText.text = "Current Difficulty: Medium";
+        NetworkManager.diff = GameManager.Difficulty.Medium;
+        SceneManager.LoadScene("Main");
     }
 
     public void Hard()
     {
-        inst.ChangeDifficulty(GameManager.Difficulty.Hard);
-        inst.uiPromptText.text = "Current Difficulty: Hard";
+        NetworkManager.diff = GameManager.Difficulty.Hard;
+        SceneManager.LoadScene("Main");
     }
 }

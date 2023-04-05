@@ -34,10 +34,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoSingleton<GameManager>
 {
-    public static GameManager instance;
-
     public Board board;
 
     public GameObject whiteKing;
@@ -85,12 +83,7 @@ public class GameManager : MonoBehaviour
     int depth = 4;
 
     bool firstMoveMade;
-    //
-
-    void Awake()
-    {
-        instance = this;
-    }
+    
 
     void Start ()
     {
@@ -110,6 +103,7 @@ public class GameManager : MonoBehaviour
         
         miniMaxAI = new MiniMax();
         currentDifficulty = Difficulty.Medium;
+        ChangeDifficulty(NetworkManager.diff);
     }
 
     private void InitialSetup()
@@ -450,6 +444,8 @@ public class GameManager : MonoBehaviour
     public void ChangeDifficulty(Difficulty diff)
     {
         currentDifficulty = diff;
+        uiPromptText.text = "Current Difficulty: Easy";
+
     }
 
     private void DisableButtons()
