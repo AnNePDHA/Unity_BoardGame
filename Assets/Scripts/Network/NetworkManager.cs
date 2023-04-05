@@ -43,7 +43,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Player " + _userName.text + " joined room " + _roomId.text);
+        Debug.Log("Player " + _userName.text + " joined room " + _roomId.text + " has " + PhotonNetwork.CurrentRoom.PlayerCount);
         SceneManager.LoadScene("Menu");
     }
 }
