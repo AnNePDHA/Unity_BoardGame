@@ -9,9 +9,11 @@ using UnityEngine.SceneManagement;
  */
 public class GameOver : MonoBehaviour
 {
+    public GameObject gameOverPanel;
     public void RestartGame()
     {
         SceneManager.LoadScene("Main");
+        gameOverPanel.SetActive(false);
     }
 
     public void QuitGame()
