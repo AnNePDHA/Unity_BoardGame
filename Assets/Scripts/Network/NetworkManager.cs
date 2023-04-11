@@ -14,6 +14,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public static GameManager.Difficulty diff;
     public static bool isMulti;
 
+    private void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);

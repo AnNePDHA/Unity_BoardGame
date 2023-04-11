@@ -30,10 +30,11 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public enum PieceType {King, Queen, Bishop, Knight, Rook, Pawn};
 
-public abstract class Piece : MonoBehaviour
+public abstract class Piece : MonoBehaviourPun
 {
     public PieceType type;
 
@@ -42,5 +43,22 @@ public abstract class Piece : MonoBehaviour
     protected Vector2Int[] BishopDirections = {new Vector2Int(1,1), new Vector2Int(1, -1),
         new Vector2Int(-1, -1), new Vector2Int(-1, 1)};
 
+    public Vector3 _networkPosition;
+
     public abstract List<Vector2Int> MoveLocations(Vector2Int gridPoint);
-}
+
+/*    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // Send current position to other players
+            stream.SendNext(transform.position);
+        }
+        else
+        {
+            // Receive position from other players and lerp towards it
+            _networkPosition = (Vector3)stream.ReceiveNext();
+            this.transform.position = _networkPosition;
+        }
+    }
+*/}

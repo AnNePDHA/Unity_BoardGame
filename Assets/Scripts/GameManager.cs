@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class GameManager : MonoSingleton<GameManager>
 {
@@ -30,11 +31,15 @@ public class GameManager : MonoSingleton<GameManager>
     public Player currentPlayer;
     public Player otherPlayer;
 
+    public string mine;
+
     //Luke Guest
     MiniMax miniMaxAI;
 
     GameObject[] buttons;
     bool gameOver = false;
+
+    public PhotonView photonView;
 
     public enum Difficulty
     {
@@ -58,11 +63,21 @@ public class GameManager : MonoSingleton<GameManager>
 
     void Start ()
     {
+        photonView = GetComponent<PhotonView>();
         pieces = new GameObject[8, 8];
         movedPawns = new List<GameObject>();
 
         white = new Player("white", true);
         black = new Player("black", false);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            mine = "white";
+        }
+        else
+        {
+            mine = "black";
+        }
 
         currentPlayer = white;
         otherPlayer = black;
@@ -145,12 +160,37 @@ public class GameManager : MonoSingleton<GameManager>
             locations.RemoveAll(gp => FriendlyPieceAt(gp, false, maximisingPlayer ? white : black));
         }
         
-
+        //if (NetworkManager.isMulti)
+        //{
+        //    photonView.RPC("MovesForPieceRPC", RpcTarget.Others, gridPoint.x, gridPoint.y, realMove, maximisingPlayer);
+        //}
         return locations;
     }
 
+    //[PunRPC]
+    //public void MovesForPieceRPC(int gridPointX, int gridPointY, bool realMove, bool maximisingPlayer)
+    //{
+    //    Piece piece = pieces[gridPointX, gridPointY].GetComponent<Piece>();
+    //    List<Vector2Int> locations = piece.MoveLocations(new Vector2Int(gridPointX, gridPointY));
+
+    //    // filter out offboard locations
+    //    locations.RemoveAll(gp => gp.x < 0 || gp.x > 7 || gp.y < 0 || gp.y > 7);
+
+    //    if (realMove)
+    //    {
+    //        // filter out locations with friendly piece
+    //        locations.RemoveAll(gp => FriendlyPieceAt(gp));
+    //    }
+    //    else
+    //    {
+    //        locations.RemoveAll(gp => FriendlyPieceAt(gp, false, maximisingPlayer ? white : black));
+    //    }
+    //}
+
+    //[PunRPC]
     public void Move(GameObject piece, Vector2Int gridPoint, bool realMove = true)
     {
+        //if (!photonView.IsMine) return;
         Piece pieceComponent = piece.GetComponent<Piece>();
         if (pieceComponent.type == PieceType.Pawn && !HasPawnMoved(piece) && realMove)
         {
@@ -164,6 +204,27 @@ public class GameManager : MonoSingleton<GameManager>
         if (realMove)
         {
             board.MovePiece(piece, gridPoint);
+        }
+        if (NetworkManager.isMulti)
+            photonView.RPC("MovePiece", RpcTarget.Others, startGridPoint.x, startGridPoint.y, gridPoint.x, gridPoint.y, realMove);
+    }
+
+    [PunRPC]
+    public void MovePiece(int startGridPointX, int startGridPointY, int gridPointX, int gridPointY, bool realMove)
+    {
+        GameObject piece = pieces[startGridPointX, startGridPointY];
+        //Debug.LogError(piece.name);
+        Piece pieceComponent = piece.GetComponent<Piece>();
+        if (pieceComponent.type == PieceType.Pawn && !HasPawnMoved(piece) && realMove)
+        {
+            movedPawns.Add(piece);
+        }
+
+        pieces[startGridPointX, startGridPointY] = null;
+        pieces[gridPointX, gridPointY] = piece;
+        if (realMove)
+        {
+            board.MovePiece(piece, new Vector2Int(gridPointX, gridPointY));
         }
     }
 
@@ -185,8 +246,10 @@ public class GameManager : MonoSingleton<GameManager>
      * realMove - whether piece needs to be deleted, or an operation of MiniMax algo.
      * player - only needed if realMove = false
      */
-    public GameObject CapturePieceAt(Vector2Int gridPoint, bool realMove = true, Player player = null)
-    {       
+    //[PunRPC]
+    public void CapturePieceAt(Vector2Int gridPoint, bool realMove = true, Player player = null)
+    {
+        //if (photonView.IsMine) return;
         GameObject pieceToCapture = PieceAtGrid(gridPoint);
         if (pieceToCapture.GetComponent<Piece>().type == PieceType.King && realMove)
         {
@@ -214,9 +277,58 @@ public class GameManager : MonoSingleton<GameManager>
         {
             Destroy(pieceToCapture);
         }
+        if (NetworkManager.isMulti)
+        {
+            if (player == null)
+            {
+                player = currentPlayer;
+            }
+            photonView.RPC("CapturePiece", RpcTarget.Others, gridPoint.x, gridPoint.y, realMove, player.name);
+        }
+        //return pieceToCapture.gameObject;
+    }
 
-        return pieceToCapture.gameObject;
+    [PunRPC]
+    public void CapturePiece(int gridPointX, int gridPointY, bool realMove, string player)
+    {
+        GameObject pieceToCapture = PieceAtGrid(new Vector2Int(gridPointX, gridPointY));
+        if (pieceToCapture.GetComponent<Piece>().type == PieceType.King && realMove)
+        {
+            Debug.Log(currentPlayer.name + " wins!");
+            Destroy(board.GetComponent<TileSelector>());
+            Destroy(board.GetComponent<MoveSelector>());
+            GameOver(currentPlayer);
+        }
+
+        Player _player;
+
+        if (player == "white")
+        {
+            _player = white;
+        }
+        else
+        {
+            _player = black;
+        }
+
+        //Luke Guest
+        if (realMove)
+        {
+            currentPlayer.capturedPieces.Add(pieceToCapture);
+        }
+        else
+        {
+            _player.capturedPieces.Add(pieceToCapture);
+        }
         //
+
+        pieces[gridPointX, gridPointY] = null;
+
+        //Luke Guest
+        if (realMove)
+        {
+            Destroy(pieceToCapture);
+        }
     }
 
     public void SelectPiece(GameObject piece)
@@ -293,40 +405,76 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
-    public void NextPlayer()
+    [PunRPC]
+    public void UpdateCurrentPlayer(string currentPlayer)
     {
-        if(currentPlayer == white)
+        if (currentPlayer == "white")
         {
-            currentPlayer = black;
-            otherPlayer = white;
-        }
-
-        if(currentPlayer.name == "black" && !gameOver)
-        {
-            if (currentDifficulty == Difficulty.Easy)
-            {
-                depth = 1;
-            }
-            else if (currentDifficulty == Difficulty.Medium)
-            {
-                depth = 3;
-            }
-            else
-            {
-                depth = 4;
-            }
-
-            StartCoroutine(AITurn());
-            CheckmateCheck();
+            this.currentPlayer = white;
+            this.otherPlayer = black;
         }
         else
         {
-            
-            if (!firstMoveMade)
+            this.currentPlayer = black;
+            this.otherPlayer = white;
+        }
+    }
+
+    public void NextPlayer()
+    {
+        if (NetworkManager.isMulti)
+        {
+            if (currentPlayer == white)
             {
-                DisableButtons();
-                firstMoveMade = true;
-                uiPromptText.text = "";
+                currentPlayer = black;
+                otherPlayer = white;
+                if (!firstMoveMade)
+                {
+                    DisableButtons();
+                    firstMoveMade = true;
+                    uiPromptText.text = "";
+                }
+            }
+            else
+            {
+                currentPlayer = white;
+                otherPlayer = black;
+            }
+            photonView.RPC("UpdateCurrentPlayer", RpcTarget.Others, currentPlayer.name);
+        } else
+        {
+            if (currentPlayer == white)
+            {
+                currentPlayer = black;
+                otherPlayer = white;
+            }
+
+            if (currentPlayer.name == "black" && !gameOver)
+            {
+                if (currentDifficulty == Difficulty.Easy)
+                {
+                    depth = 1;
+                }
+                else if (currentDifficulty == Difficulty.Medium)
+                {
+                    depth = 3;
+                }
+                else
+                {
+                    depth = 4;
+                }
+
+                StartCoroutine(AITurn());
+                CheckmateCheck();
+            }
+            else
+            {
+                if (!firstMoveMade)
+                {
+                    DisableButtons();
+                    firstMoveMade = true;
+                    uiPromptText.text = "";
+                }
             }
         }
     }
@@ -338,6 +486,10 @@ public class GameManager : MonoSingleton<GameManager>
         Debug.Log(depth);
 
         (float, Move) miniMaxCall = miniMaxAI.MinMax(depth, true);
+        if (miniMaxCall.Item2 == null)
+        {
+            GameOver(currentPlayer);
+        }
 
         Debug.Log("---------------------------");
 
