@@ -8,15 +8,31 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] Text _userName;
     [SerializeField] Text _roomId;
-    [SerializeField] Button _playBtn;
+    [SerializeField] Button _singleBtn;
+    [SerializeField] Button _multiBtn;
 
     public static GameManager.Difficulty diff;
+    public static bool isMulti;
 
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
-        _playBtn.onClick.AddListener(OnPlay);
+        isMulti = false;
+        _singleBtn.onClick.AddListener(OnSingle);
+        _multiBtn.onClick.AddListener(OnMulti);
         diff = GameManager.Difficulty.Medium;
+    }
+
+    void OnSingle()
+    {
+        isMulti = false;
+        OnPlay();
+    }
+
+    void OnMulti()
+    {
+        isMulti = true;
+        OnPlay();
     }
 
     void OnPlay()
@@ -44,6 +60,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Player " + _userName.text + " joined room " + _roomId.text + " has " + PhotonNetwork.CurrentRoom.PlayerCount);
-        SceneManager.LoadScene("Menu");
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 2 || isMulti)
+        {
+            isMulti = true;
+            SceneManager.LoadScene("Main");
+        }
+        else
+        {
+            SceneManager.LoadScene("Menu");
+        }
     }
 }
