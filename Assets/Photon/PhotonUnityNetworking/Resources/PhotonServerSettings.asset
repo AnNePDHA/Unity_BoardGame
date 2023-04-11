@@ -42,6 +42,8 @@ MonoBehaviour:
   - UpdateCurrentPlayer
   - CapturePieceAt
   - Move
+  - CapturePiece
+  - MovePiece
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

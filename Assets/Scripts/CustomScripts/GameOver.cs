@@ -12,8 +12,8 @@ public class GameOver : MonoBehaviour
     public GameObject gameOverPanel;
     public void RestartGame()
     {
-        SceneManager.LoadScene("Main");
         gameOverPanel.SetActive(false);
+        SceneManager.LoadScene("Main");
     }
 
     public void QuitGame()

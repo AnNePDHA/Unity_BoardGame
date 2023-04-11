@@ -568,9 +568,11 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void ChangeDifficulty(Difficulty diff)
     {
-        currentDifficulty = diff;
-        uiPromptText.text = "Current Difficulty: " + diff.ToString();
-
+        if (!NetworkManager.isMulti)
+        {
+            currentDifficulty = diff;
+            uiPromptText.text = "Current Difficulty: " + diff.ToString();
+        }
     }
 
     private void DisableButtons()
