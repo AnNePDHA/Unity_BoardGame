@@ -417,7 +417,7 @@ public class GameManager : MonoSingleton<GameManager>
     public void ChangeDifficulty(Difficulty diff)
     {
         currentDifficulty = diff;
-        uiPromptText.text = "Current Difficulty: Easy";
+        uiPromptText.text = "Current Difficulty: " + diff.ToString();
 
     }
 
