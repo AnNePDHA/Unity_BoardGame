@@ -67,7 +67,7 @@ public class MoveSelector : MonoBehaviour
 
             tileHighlight.SetActive(true);
             tileHighlight.transform.position = Geometry.PointFromGrid(gridPoint);
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && GameManager.Instance.currentPlayer.name == GameManager.Instance.mine)
             {
                 // Reference Point 2: check for valid move location
                 if (!moveLocations.Contains(gridPoint))
@@ -89,7 +89,6 @@ public class MoveSelector : MonoBehaviour
 
                     //Modified by Luke Guest
                     TileSelector.inst.selectedObject = null;
-
                 }
 
                 // Reference Point 3: capture enemy piece here later

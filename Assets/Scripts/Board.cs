@@ -29,14 +29,16 @@
  */
 
 using UnityEngine;
+using Photon.Pun;
 
-public class Board : MonoBehaviour
+public class Board : MonoBehaviourPunCallbacks
 {
     public Material defaultMaterial;
     public Material selectedMaterial;
 
     public GameObject AddPiece(GameObject piece, int col, int row)
     {
+        //if (!GameManager.Instance.photonView.IsMine) return null;
         Vector2Int gridPoint = Geometry.GridPoint(col, row);
         GameObject newPiece = Instantiate(piece, Geometry.PointFromGrid(gridPoint), Quaternion.identity, gameObject.transform);
         return newPiece;

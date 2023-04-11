@@ -71,7 +71,7 @@ public class TileSelector : MonoBehaviour
             if (Input.GetMouseButtonDown(0) && selectedObject == null)
             {
                 GameObject selectedPiece = GameManager.Instance.PieceAtGrid(gridPoint);
-                if (GameManager.Instance.DoesPieceBelongToCurrentPlayer(selectedPiece))
+                if (GameManager.Instance.DoesPieceBelongToCurrentPlayer(selectedPiece) && GameManager.Instance.currentPlayer.name == GameManager.Instance.mine)
                 {
                     //Luke Guest
                     selectedObject = selectedPiece;

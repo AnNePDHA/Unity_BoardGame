@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Photon.Pun;
 
 /// <summary>
 ///     Be aware this will not prevent a non singleton constructor
