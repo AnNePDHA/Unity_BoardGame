@@ -72,6 +72,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
         else
         {
+            isMulti = false;
             SceneManager.LoadScene("Menu");
         }
     }
